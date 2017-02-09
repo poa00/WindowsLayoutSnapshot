@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace WindowsLayoutSnapshot {
 
@@ -48,6 +49,14 @@ namespace WindowsLayoutSnapshot {
             }
             m_placements.Add(hwnd, placement);
 
+#if DEBUG
+            // For debugging purpose, output window title with handle
+            int textLength = 256;
+            StringBuilder outText = new StringBuilder(textLength + 1);
+            int a = GetWindowText(hwnd, outText, outText.Capacity);
+            Debug.WriteLine(hwnd + " " + outText);
+#endif
+
             return true;
         }
 
@@ -58,7 +67,7 @@ namespace WindowsLayoutSnapshot {
 
         public string GetDisplayString()
         {
-            return TimeTaken.ToLocalTime().ToString("MMM dd, h:mm tt"); 
+            return TimeTaken.ToLocalTime().ToString("MMM dd, hh:mm:ss"); 
         }
 
         internal TimeSpan Age {
@@ -95,7 +104,27 @@ namespace WindowsLayoutSnapshot {
                 placementValue.ptMinPosition = GetUpperLeftCornerOfNearestMonitor(extendedStyles, placementValue.ptMinPosition);
                 placementValue.rcNormalPosition = GetRectInsideNearestMonitor(extendedStyles, placementValue.rcNormalPosition);
 
-                SetWindowPlacement(placement.Key, ref placementValue);
+                // Maximized applications do not move to another screen with SetWindowPlacement
+                if (placementValue.showCmd == 3)
+                {
+                    // Inspired from:
+                    // https://msdn.microsoft.com/en-us/library/windows/desktop/dd162826(v=vs.85).aspx
+                    // https://www.codeproject.com/tips/853894/maximize-windows-on-multiple-monitors
+                    // Find proper monitor for current window
+                    POINT windowPoint = new POINT(placementValue.rcNormalPosition.Left, placementValue.rcNormalPosition.Top);
+                    IntPtr hMonitor = MonitorFromPoint(windowPoint, MonitorOptions.MONITOR_DEFAULTTONEAREST);
+                    MONITORINFO mi = new MONITORINFO();
+                    mi.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+                    GetMonitorInfo(hMonitor, ref mi);
+                    // Get rect for work area
+                    RECT rc = mi.rcWork;
+                    // Move window, resize to full screen
+                    SetWindowPos(placement.Key, 0, rc.Left, rc.Top, rc.Right - rc.Left, rc.Bottom - rc.Top, 0);
+                }
+                else if (! SetWindowPlacement(placement.Key, ref placementValue))
+                {
+                    Debug.WriteLine("Can't move window " + placement.Key + ": " + GetLastError());
+                }
             }
 
             // now update the z-orders
@@ -256,5 +285,62 @@ namespace WindowsLayoutSnapshot {
         [DllImport("user32.dll")]
         private static extern int EnumWindows(EnumWindowsProc ewp, int lParam);
         private delegate bool EnumWindowsProc(int hWnd, int lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("kernel32.dll")]
+        static extern uint GetLastError();
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
+        public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+
+            public POINT(int x, int y)
+            {
+                this.X = x;
+                this.Y = y;
+            }
+
+            public POINT(System.Drawing.Point pt) : this(pt.X, pt.Y) { }
+
+            public static implicit operator System.Drawing.Point(POINT p)
+            {
+                return new System.Drawing.Point(p.X, p.Y);
+            }
+
+            public static implicit operator POINT(System.Drawing.Point p)
+            {
+                return new POINT(p.X, p.Y);
+            }
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
+
+        enum MonitorOptions : uint
+        {
+            MONITOR_DEFAULTTONULL = 0x00000000,
+            MONITOR_DEFAULTTOPRIMARY = 0x00000001,
+            MONITOR_DEFAULTTONEAREST = 0x00000002
+        }
+
     }
 }
