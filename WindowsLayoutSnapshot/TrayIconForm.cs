@@ -9,22 +9,17 @@ using System.Drawing.Imaging;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace WindowsLayoutSnapshot {
 
     public partial class TrayIconForm : Form {
 
-        private System.Windows.Forms.Timer m_snapshotTimer = new System.Windows.Forms.Timer();
+        private Timer m_snapshotTimer = new Timer();
         private List<Snapshot> m_snapshots = new List<Snapshot>();
         private Snapshot m_menuShownSnapshot = null;
         private Padding? m_originalTrayMenuArrowPadding = null;
         private Padding? m_originalTrayMenuTextPadding = null;
-
-        Dictionary<int, Snapshot> lastForMonitorCount = new Dictionary<int, Snapshot>();
-
-        int lastCount = 0;
 
         internal static ContextMenuStrip me { get; set; }
 
@@ -32,35 +27,13 @@ namespace WindowsLayoutSnapshot {
             InitializeComponent();
             Visible = false;
 
-            m_snapshotTimer.Interval = (int)TimeSpan.FromSeconds(30).TotalMilliseconds;
+            m_snapshotTimer.Interval = (int)TimeSpan.FromMinutes(20).TotalMilliseconds;
             m_snapshotTimer.Tick += snapshotTimer_Tick;
             m_snapshotTimer.Enabled = true;
 
             me = trayMenu;
 
             TakeSnapshot(false);
-
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-        }
-
-        int GetScreenCount()
-        {
-            int count = 0;
-            foreach (var screen in Screen.AllScreens)
-                count++;
-            return count;
-        }
-
-        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
-        {
-            m_snapshotTimer.Enabled = false;
-            Thread.Sleep(10000);
-            int screenCount = GetScreenCount();
-            if (screenCount != lastCount && lastForMonitorCount.ContainsKey(screenCount))
-            {
-                lastForMonitorCount[screenCount].Restore(null, null);
-            }
-            m_snapshotTimer.Enabled = true;
         }
 
         private void snapshotTimer_Tick(object sender, EventArgs e) {
@@ -72,34 +45,8 @@ namespace WindowsLayoutSnapshot {
         }
 
         private void TakeSnapshot(bool userInitiated) {
-            var snap = Snapshot.TakeSnapshot(userInitiated);
-            lastForMonitorCount[snap.NumMonitors] = snap;
-            m_snapshots.Add(snap);
-
-            while (m_snapshots.Count > 10)
-            {
-                Snapshot toRemove = null;
-                foreach (var sn in m_snapshots)
-                {
-                    if (sn.NumMonitors == snap.NumMonitors)
-                    {
-                        toRemove = sn;
-                        break;
-                    }
-                }
-                if (toRemove != null)
-                {
-                    m_snapshots.Remove(toRemove);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
+            m_snapshots.Add(Snapshot.TakeSnapshot(userInitiated));
             UpdateRestoreChoicesInMenu();
-
-            lastCount = snap.NumMonitors;
         }
 
         private void clearSnapshotsToolStripMenuItem_Click(object sender, EventArgs e) {
