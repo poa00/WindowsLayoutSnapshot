@@ -1,11 +1,11 @@
 WindowsLayoutSnapshot
 =====================
 
-Ever switch monitor configs on your laptop and all of your windows are squished down in size and in the wrong position?  Ever want to minimize all windows but save their layouts and min-max'ed states for later?
+Ever switch monitor configs on your laptop and all of your windows are squished down in size and in the wrong position?  Ever unplug from docking station with multiple monitors to go to a meeting? Ever want to minimize all windows but save their layouts and min-max'ed states for later? 
 
 WindowsLayoutSnapshot is a windows app to remember and restore window positions.
 
-If you don't want the source code, just download `WindowsLayoutSnapshot.exe`.  There's no installer; just put it in your Startup folder.
+If you don't want the source code, just download `WindowsLayoutSnapshot-binary.zip`.  There's no installer; just put it in your Startup folder.
 
 The app takes a "snapshot" of your windows layouts every thirty minutes.  You can see the list of snapshots when you click on the tray menu icon.
 
