@@ -11,6 +11,9 @@ namespace WindowsLayoutSnapshot {
 
     internal class Snapshot {
 
+        private const long WS_EX_TOOLWINDOW = 0x00000080L;
+        private const long WS_EX_APPWINDOW = 0x00040000;
+
         private Dictionary<IntPtr, WINDOWPLACEMENT> m_placements = new Dictionary<IntPtr, WINDOWPLACEMENT>();
         private List<IntPtr> m_windowsBackToTop = new List<IntPtr>();
 
@@ -138,7 +141,7 @@ namespace WindowsLayoutSnapshot {
         }
 
         private static Point GetUpperLeftCornerOfNearestMonitor(IntPtr windowExtendedStyles, Point point) {
-            if ((windowExtendedStyles.ToInt64() & 0x00000080) > 0) { // WS_EX_TOOLWINDOW
+            if ((windowExtendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
                 return Screen.GetBounds(point).Location; // use screen coordinates
             } else {
                 return Screen.GetWorkingArea(point).Location; // use workspace coordinates
@@ -151,7 +154,7 @@ namespace WindowsLayoutSnapshot {
 
             Rectangle rectAsRectangle = new Rectangle(rect.Left, rect.Top, width, height);
             Rectangle monitorRect;
-            if ((windowExtendedStyles.ToInt64() & 0x00000080) > 0) { // WS_EX_TOOLWINDOW
+            if ((windowExtendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
                 monitorRect = Screen.GetBounds(rectAsRectangle); // use screen coordinates
             } else {
                 monitorRect = Screen.GetWorkingArea(rectAsRectangle); // use workspace coordinates
@@ -171,10 +174,10 @@ namespace WindowsLayoutSnapshot {
             }
 
             IntPtr extendedStyles = GetWindowLongPtr(hwnd, (-20)); // GWL_EXSTYLE
-            if ((extendedStyles.ToInt64() & 0x00040000) > 0) { // WS_EX_APPWINDOW
+            if ((extendedStyles.ToInt64() & WS_EX_APPWINDOW) > 0) {
                 return true;
             }
-            if ((extendedStyles.ToInt64() & 0x00000080) > 0) { // WS_EX_TOOLWINDOW
+            if ((extendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
                 return false;
             }
 
