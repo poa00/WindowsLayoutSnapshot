@@ -13,7 +13,7 @@ namespace WindowsLayoutSnapshot {
         private const long WS_EX_TOOLWINDOW = 0x00000080L;
         private const long WS_EX_APPWINDOW = 0x00040000;
 
-        private Dictionary<IntPtr, RECT> m_placements = new Dictionary<IntPtr, RECT>();
+        private Dictionary<IntPtr, WinInfo> m_infos = new Dictionary<IntPtr, WinInfo>();
         private List<IntPtr> m_windowsBackToTop = new List<IntPtr>();
 
         private Snapshot(bool userInitiated) {
@@ -47,18 +47,15 @@ namespace WindowsLayoutSnapshot {
             // EnumWindows returns windows in Z order from back to front
             m_windowsBackToTop.Add(hwnd);
 
-            var placement = new RECT();
-            if (!GetWindowRect(hwnd, out placement)) {
-                throw new Exception("Error getting window rectangle");
-            }
-            m_placements.Add(hwnd, placement);
+            WinInfo win = GetWindowInfo(hwnd);
+            m_infos.Add(hwnd, win);
 
 #if DEBUG
             // For debugging purpose, output window title with handle
             int textLength = 256;
             StringBuilder outText = new StringBuilder(textLength + 1);
             int a = GetWindowText(hwnd, outText, outText.Capacity);
-            Debug.WriteLine(hwnd + " " + placement + " " + outText);
+            Debug.WriteLine(hwnd + " " + win.position + " " + outText);
 #endif
 
             return true;
@@ -98,17 +95,15 @@ namespace WindowsLayoutSnapshot {
 
         internal void Restore(object sender, EventArgs e) { // ignore extra params
             // first, restore the window rectangles and normal/maximized/minimized states
-            foreach (var placement in m_placements) {
+            foreach (var placement in m_infos) {
                 // this might error out if the window no longer exists
-                var rect = placement.Value;
+                WinInfo win = placement.Value;
 
-                // make sure points and rects will be inside monitor
-                IntPtr extendedStyles = GetWindowLongPtr(placement.Key, (-20)); // GWL_EXSTYLE
-                rect = GetRectInsideNearestMonitor(extendedStyles, rect);
+                // make sure window will be inside a monitor
+                Rectangle newpos = GetRectInsideNearestMonitor(win);
 
-                if (!SetWindowPos(placement.Key, 0, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, 0x0004 /*NOZORDER*/)) {
+                if (!SetWindowPos(placement.Key, 0, newpos.Left, newpos.Top, newpos.Width, newpos.Height, 0x0004 /*NOZORDER*/))
                     Debug.WriteLine("Can't move window " + placement.Key + ": " + GetLastError());
-                }
             }
 
             // now update the z-orders
@@ -121,18 +116,16 @@ namespace WindowsLayoutSnapshot {
             EndDeferWindowPos(positionStructure);
         }
 
-        private static RECT GetRectInsideNearestMonitor(IntPtr windowExtendedStyles, RECT rect) {
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
+        private static Rectangle GetRectInsideNearestMonitor(WinInfo win) {
+            Rectangle rect = win.position;
+            Rectangle monitorRect = Screen.GetWorkingArea(rect); // use workspace coordinates
 
-            Rectangle rectAsRectangle = new Rectangle(rect.Left, rect.Top, width, height);
-            Rectangle monitorRect = Screen.GetWorkingArea(rectAsRectangle); // use workspace coordinates
-
-            var y = new RECT();
-            y.Left = Math.Max(monitorRect.Left, Math.Min(monitorRect.Right - width, rect.Left));
-            y.Top = Math.Max(monitorRect.Top, Math.Min(monitorRect.Bottom - height, rect.Top));
-            y.Right = y.Left + Math.Min(monitorRect.Width, width);
-            y.Bottom = y.Top + Math.Min(monitorRect.Height, height);
+            var y = new Rectangle(
+                Math.Max(monitorRect.Left, Math.Min(monitorRect.Right - rect.Width, rect.Left)),
+                Math.Max(monitorRect.Top, Math.Min(monitorRect.Bottom - rect.Height, rect.Top)),
+                Math.Min(monitorRect.Width, rect.Width),
+                Math.Min(monitorRect.Height, rect.Height)
+            );
 #if DEBUG
             if (y.Left != rect.Left || y.Top != rect.Top)
                 Debug.WriteLine("Moving " + rect + "→" + y + " in monitor " + monitorRect);
@@ -167,6 +160,19 @@ namespace WindowsLayoutSnapshot {
             }
 
             return true;
+        }
+
+        private struct WinInfo {
+            public Rectangle position; // real window border, we use this to move it
+        }
+
+        private static WinInfo GetWindowInfo(IntPtr hwnd) {
+            WinInfo win = new WinInfo();
+            RECT pos;
+            if (!GetWindowRect(hwnd, out pos))
+                throw new Exception("Error getting window rectangle");
+            win.position = pos.ToRectangle();
+            return win;
         }
 
         [DllImport("user32.dll")]
@@ -230,8 +236,8 @@ namespace WindowsLayoutSnapshot {
             public int Top;
             public int Right;
             public int Bottom;
-            public override string ToString() {
-                return "[" + Left + "," + Top + "-" + Right + "," + Bottom +"]";
+            public Rectangle ToRectangle() {
+                return Rectangle.FromLTRB(Left, Top, Right, Bottom);
             }
         }
 
