@@ -14,7 +14,7 @@ namespace WindowsLayoutSnapshot {
         private const long WS_EX_TOOLWINDOW = 0x00000080L;
         private const long WS_EX_APPWINDOW = 0x00040000;
 
-        private Dictionary<IntPtr, WINDOWPLACEMENT> m_placements = new Dictionary<IntPtr, WINDOWPLACEMENT>();
+        private Dictionary<IntPtr, RECT> m_placements = new Dictionary<IntPtr, RECT>();
         private List<IntPtr> m_windowsBackToTop = new List<IntPtr>();
 
         private Snapshot(bool userInitiated) {
@@ -45,10 +45,9 @@ namespace WindowsLayoutSnapshot {
             // EnumWindows returns windows in Z order from back to front
             m_windowsBackToTop.Add(hwnd);
 
-            var placement = new WINDOWPLACEMENT();
-            placement.length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
-            if (!GetWindowPlacement(hwnd, ref placement)) {
-                throw new Exception("Error getting window placement");
+            var placement = new RECT();
+            if (!GetWindowRect(hwnd, out placement)) {
+                throw new Exception("Error getting window rectangle");
             }
             m_placements.Add(hwnd, placement);
 
@@ -99,33 +98,13 @@ namespace WindowsLayoutSnapshot {
             // first, restore the window rectangles and normal/maximized/minimized states
             foreach (var placement in m_placements) {
                 // this might error out if the window no longer exists
-                var placementValue = placement.Value;
+                var rect = placement.Value;
 
                 // make sure points and rects will be inside monitor
                 IntPtr extendedStyles = GetWindowLongPtr(placement.Key, (-20)); // GWL_EXSTYLE
-                placementValue.ptMaxPosition = GetUpperLeftCornerOfNearestMonitor(extendedStyles, placementValue.ptMaxPosition);
-                placementValue.ptMinPosition = GetUpperLeftCornerOfNearestMonitor(extendedStyles, placementValue.ptMinPosition);
-                placementValue.rcNormalPosition = GetRectInsideNearestMonitor(extendedStyles, placementValue.rcNormalPosition);
+                rect = GetRectInsideNearestMonitor(extendedStyles, rect);
 
-                // Maximized applications do not move to another screen with SetWindowPlacement
-                if (placementValue.showCmd == 3)
-                {
-                    // Inspired from:
-                    // https://msdn.microsoft.com/en-us/library/windows/desktop/dd162826(v=vs.85).aspx
-                    // https://www.codeproject.com/tips/853894/maximize-windows-on-multiple-monitors
-                    // Find proper monitor for current window
-                    POINT windowPoint = new POINT(placementValue.rcNormalPosition.Left, placementValue.rcNormalPosition.Top);
-                    IntPtr hMonitor = MonitorFromPoint(windowPoint, MonitorOptions.MONITOR_DEFAULTTONEAREST);
-                    MONITORINFO mi = new MONITORINFO();
-                    mi.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
-                    GetMonitorInfo(hMonitor, ref mi);
-                    // Get rect for work area
-                    RECT rc = mi.rcWork;
-                    // Move window, resize to full screen
-                    SetWindowPos(placement.Key, 0, rc.Left, rc.Top, rc.Right - rc.Left, rc.Bottom - rc.Top, 0);
-                }
-                else if (! SetWindowPlacement(placement.Key, ref placementValue))
-                {
+                if (!SetWindowPos(placement.Key, 0, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, 0x0004 /*NOZORDER*/)) {
                     Debug.WriteLine("Can't move window " + placement.Key + ": " + GetLastError());
                 }
             }
@@ -140,25 +119,12 @@ namespace WindowsLayoutSnapshot {
             EndDeferWindowPos(positionStructure);
         }
 
-        private static Point GetUpperLeftCornerOfNearestMonitor(IntPtr windowExtendedStyles, Point point) {
-            if ((windowExtendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
-                return Screen.GetBounds(point).Location; // use screen coordinates
-            } else {
-                return Screen.GetWorkingArea(point).Location; // use workspace coordinates
-            }
-        }
-
         private static RECT GetRectInsideNearestMonitor(IntPtr windowExtendedStyles, RECT rect) {
             int width = rect.Right - rect.Left;
             int height = rect.Bottom - rect.Top;
 
             Rectangle rectAsRectangle = new Rectangle(rect.Left, rect.Top, width, height);
-            Rectangle monitorRect;
-            if ((windowExtendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
-                monitorRect = Screen.GetBounds(rectAsRectangle); // use screen coordinates
-            } else {
-                monitorRect = Screen.GetWorkingArea(rectAsRectangle); // use workspace coordinates
-            }
+            Rectangle monitorRect = Screen.GetWorkingArea(rectAsRectangle); // use workspace coordinates
 
             var y = new RECT();
             y.Left = Math.Max(monitorRect.Left, Math.Min(monitorRect.Right - width, rect.Left));
@@ -295,8 +261,13 @@ namespace WindowsLayoutSnapshot {
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
 
+        [DllImport("user32.dll", EntryPoint = "GetWindowRect")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
         [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
-        public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct MONITORINFO
