@@ -18,6 +18,9 @@ namespace WindowsLayoutSnapshot {
         private List<IntPtr> m_windowsBackToTop = new List<IntPtr>();
 
         private Snapshot(bool userInitiated) {
+#if DEBUG
+            Debug.WriteLine("*** NEW SNAPSHOT ***");
+#endif
             EnumWindows(EvalWindow, 0);
 
             TimeTaken = DateTime.UtcNow;
@@ -56,7 +59,7 @@ namespace WindowsLayoutSnapshot {
             int textLength = 256;
             StringBuilder outText = new StringBuilder(textLength + 1);
             int a = GetWindowText(hwnd, outText, outText.Capacity);
-            Debug.WriteLine(hwnd + " " + outText);
+            Debug.WriteLine(hwnd + " " + placement + " " + outText);
 #endif
 
             return true;
@@ -131,6 +134,10 @@ namespace WindowsLayoutSnapshot {
             y.Top = Math.Max(monitorRect.Top, Math.Min(monitorRect.Bottom - height, rect.Top));
             y.Right = y.Left + Math.Min(monitorRect.Width, width);
             y.Bottom = y.Top + Math.Min(monitorRect.Height, height);
+#if DEBUG
+            if (y.Left != rect.Left || y.Top != rect.Top)
+                Debug.WriteLine("Moving " + rect + "→" + y + " in monitor " + monitorRect);
+#endif
             return y;
         }
 
@@ -242,6 +249,9 @@ namespace WindowsLayoutSnapshot {
             public int Top;
             public int Right;
             public int Bottom;
+            public override string ToString() {
+                return "[" + Left + "," + Top + "-" + Right + "," + Bottom +"]";
+            }
         }
 
         [DllImport("user32.dll")]
