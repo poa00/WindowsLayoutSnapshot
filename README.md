@@ -5,7 +5,8 @@ Ever switch monitor configs on your laptop and all of your windows are squished 
 
 WindowsLayoutSnapshot is a windows app to remember and restore window positions.
 
-If you don't want the source code, just download `WindowsLayoutSnapshot-binary.zip`.  There's no installer; just put it in your Startup folder.
+You can download the binary from the <a href="https://github.com/lapo-luchini/WindowsLayoutSnapshot/releases/latest">release page</a>.
+There's no installer; you can just put it in your Startup folder.
 
 The app takes a "snapshot" of your windows layouts every thirty minutes.  You can see the list of snapshots when you click on the tray menu icon.
 
