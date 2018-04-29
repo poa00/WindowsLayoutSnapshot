@@ -105,6 +105,9 @@ namespace WindowsLayoutSnapshot {
             var snapshotsOldestFirst = new List<Snapshot>(CondenseSnapshots(m_snapshots, 20));
             var newMenuItems = new List<ToolStripItem>();
 
+            newMenuItems.Add(quitToolStripMenuItem);
+            newMenuItems.Add(snapshotListEndLine);
+
             var maxNumMonitors = 0;
             var maxNumMonitorPixels = 0L;
             var showMonitorIcons = false;
@@ -144,9 +147,6 @@ namespace WindowsLayoutSnapshot {
             newMenuItems.Add(snapshotListStartLine);
             newMenuItems.Add(clearSnapshotsToolStripMenuItem);
             newMenuItems.Add(snapshotToolStripMenuItem);
-
-            newMenuItems.Add(snapshotListEndLine);
-            newMenuItems.Add(quitToolStripMenuItem);
 
             // if showing monitor icons: subtract 34 pixels from the right due to too much right padding
             try {
