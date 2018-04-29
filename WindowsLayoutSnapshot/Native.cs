@@ -88,7 +88,7 @@ namespace WindowsLayoutSnapshot {
         internal delegate bool EnumWindowsProc(int hWnd, int lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         [DllImport("kernel32.dll")]
         internal static extern uint GetLastError();

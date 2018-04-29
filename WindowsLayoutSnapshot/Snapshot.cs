@@ -50,7 +50,7 @@ namespace WindowsLayoutSnapshot {
 #if DEBUG
             // For debugging purpose, output window title with handle
             int textLength = 256;
-            StringBuilder outText = new StringBuilder(textLength + 1);
+            System.Text.StringBuilder outText = new System.Text.StringBuilder(textLength + 1);
             int a = GetWindowText(hwnd, outText, outText.Capacity);
             Debug.WriteLine(hwnd + " " + win.position + " " + outText);
 #endif
