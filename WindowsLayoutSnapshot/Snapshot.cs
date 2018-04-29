@@ -37,9 +37,8 @@ namespace WindowsLayoutSnapshot {
         private bool EvalWindow(int hwndInt, int lParam) {
             var hwnd = new IntPtr(hwndInt);
 
-            if (!IsAltTabWindow(hwnd)) {
+            if (!IsAltTabWindow(hwnd))
                 return true;
-            }
 
             // EnumWindows returns windows in Z order from back to front
             m_windowsBackToTop.Add(hwnd);
@@ -63,8 +62,7 @@ namespace WindowsLayoutSnapshot {
         internal long[] MonitorPixelCounts { get; private set; }
         internal int NumMonitors { get; private set; }
 
-        public string GetDisplayString()
-        {
+        public string GetDisplayString() {
             return TimeTaken.ToLocalTime().ToString("MMM dd, hh:mm:ss");
         }
 
@@ -138,30 +136,25 @@ namespace WindowsLayoutSnapshot {
         }
 
         private static bool IsAltTabWindow(IntPtr hwnd) {
-            if (!Native.IsWindowVisible(hwnd)) {
+            if (!Native.IsWindowVisible(hwnd))
                 return false;
-            }
 
             IntPtr extendedStyles = GetWindowLongPtr(hwnd, (-20)); // GWL_EXSTYLE
-            if ((extendedStyles.ToInt64() & WS_EX_APPWINDOW) > 0) {
+            if ((extendedStyles.ToInt64() & WS_EX_APPWINDOW) > 0)
                 return true;
-            }
-            if ((extendedStyles.ToInt64() & Native.WS_EX_TOOLWINDOW) > 0) {
+            if ((extendedStyles.ToInt64() & Native.WS_EX_TOOLWINDOW) > 0)
                 return false;
-            }
 
             IntPtr hwndTry = GetAncestor(hwnd, GetAncestor_Flags.GetRootOwner);
             IntPtr hwndWalk = IntPtr.Zero;
             while (hwndTry != hwndWalk) {
                 hwndWalk = hwndTry;
                 hwndTry = GetLastActivePopup(hwndWalk);
-                if (IsWindowVisible(hwndTry)) {
+                if (IsWindowVisible(hwndTry))
                     break;
-                }
             }
-            if (hwndWalk != hwnd) {
+            if (hwndWalk != hwnd)
                 return false;
-            }
 
             return true;
         }
