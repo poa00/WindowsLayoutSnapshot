@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using static WindowsLayoutSnapshot.Native;
 
 namespace WindowsLayoutSnapshot {
 
     internal class Snapshot {
-
-        private const long WS_EX_TOOLWINDOW = 0x00000080L;
-        private const long WS_EX_APPWINDOW = 0x00040000;
 
         private Dictionary<IntPtr, WinInfo> m_infos = new Dictionary<IntPtr, WinInfo>();
         private List<IntPtr> m_windowsBackToTop = new List<IntPtr>();
@@ -102,12 +99,12 @@ namespace WindowsLayoutSnapshot {
                 // make sure window will be inside a monitor
                 Rectangle newpos = GetRectInsideNearestMonitor(win);
 
-                if (!SetWindowPos(placement.Key, 0, newpos.Left, newpos.Top, newpos.Width, newpos.Height, 0x0004 /*NOZORDER*/))
+                if (!Native.SetWindowPos(placement.Key, 0, newpos.Left, newpos.Top, newpos.Width, newpos.Height, 0x0004 /*NOZORDER*/))
                     Debug.WriteLine("Can't move window " + placement.Key + ": " + GetLastError());
             }
 
             // now update the z-orders
-            m_windowsBackToTop = m_windowsBackToTop.FindAll(IsWindowVisible);
+            m_windowsBackToTop = m_windowsBackToTop.FindAll(Native.IsWindowVisible);
             IntPtr positionStructure = BeginDeferWindowPos(m_windowsBackToTop.Count);
             for (int i = 0; i < m_windowsBackToTop.Count; i++) {
                 positionStructure = DeferWindowPos(positionStructure, m_windowsBackToTop[i], i == 0 ? IntPtr.Zero : m_windowsBackToTop[i - 1],
@@ -141,7 +138,7 @@ namespace WindowsLayoutSnapshot {
         }
 
         private static bool IsAltTabWindow(IntPtr hwnd) {
-            if (!IsWindowVisible(hwnd)) {
+            if (!Native.IsWindowVisible(hwnd)) {
                 return false;
             }
 
@@ -149,7 +146,7 @@ namespace WindowsLayoutSnapshot {
             if ((extendedStyles.ToInt64() & WS_EX_APPWINDOW) > 0) {
                 return true;
             }
-            if ((extendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0) {
+            if ((extendedStyles.ToInt64() & Native.WS_EX_TOOLWINDOW) > 0) {
                 return false;
             }
 
@@ -181,150 +178,9 @@ namespace WindowsLayoutSnapshot {
                 throw new Exception("Error getting window rectangle");
             win.position = win.visible = pos.ToRectangle();
             if (Environment.OSVersion.Version.Major >= 6)
-                if (DwmGetWindowAttribute(hwnd, 9 /*DwmwaExtendedFrameBounds*/, out pos, Marshal.SizeOf(typeof(RECT))) == 0)
+                if (DwmGetWindowAttribute(hwnd, 9 /*DwmwaExtendedFrameBounds*/, out pos, Marshal.SizeOf(typeof(Native.RECT))) == 0)
                     win.visible = pos.ToRectangle();
             return win;
-        }
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr BeginDeferWindowPos(int nNumWindows);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr DeferWindowPos(IntPtr hWinPosInfo, IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy,
-            [MarshalAs(UnmanagedType.U4)]DeferWindowPosCommands uFlags);
-
-        private enum DeferWindowPosCommands : uint {
-            SWP_DRAWFRAME = 0x0020,
-            SWP_FRAMECHANGED = 0x0020,
-            SWP_HIDEWINDOW = 0x0080,
-            SWP_NOACTIVATE = 0x0010,
-            SWP_NOCOPYBITS = 0x0100,
-            SWP_NOMOVE = 0x0002,
-            SWP_NOOWNERZORDER = 0x0200,
-            SWP_NOREDRAW = 0x0008,
-            SWP_NOREPOSITION = 0x0200,
-            SWP_NOSENDCHANGING = 0x0400,
-            SWP_NOSIZE = 0x0001,
-            SWP_NOZORDER = 0x0004,
-            SWP_SHOWWINDOW = 0x0040
-        };
-
-        [DllImport("user32.dll")]
-        private static extern bool EndDeferWindowPos(IntPtr hWinPosInfo);
-
-        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
-        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
-
-        private static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) {
-            if (IntPtr.Size == 8) {
-                return GetWindowLongPtr64(hWnd, nIndex);
-            }
-            return GetWindowLongPtr32(hWnd, nIndex);
-        }
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetLastActivePopup(IntPtr hWnd);
-
-        private enum GetAncestor_Flags {
-            GetParent = 1,
-            GetRoot = 2,
-            GetRootOwner = 3
-        }
-
-        [DllImport("user32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestor_Flags gaFlags);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool IsWindowVisible(IntPtr hWnd);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-            public Rectangle ToRectangle() {
-                return Rectangle.FromLTRB(Left, Top, Right, Bottom);
-            }
-        }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        private static extern int EnumWindows(EnumWindowsProc ewp, int lParam);
-        private delegate bool EnumWindowsProc(int hWnd, int lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("kernel32.dll")]
-        static extern uint GetLastError();
-
-        [DllImport("user32.dll", EntryPoint = "GetWindowRect")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-
-        [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
-
-        [DllImport(@"dwmapi.dll")]
-        private static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute, int cbAttribute);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MONITORINFO
-        {
-            public int cbSize;
-            public RECT rcMonitor;
-            public RECT rcWork;
-            public uint dwFlags;
-        }
-
-        [DllImport("user32.dll")]
-        static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-
-            public POINT(int x, int y)
-            {
-                this.X = x;
-                this.Y = y;
-            }
-
-            public POINT(System.Drawing.Point pt) : this(pt.X, pt.Y) { }
-
-            public static implicit operator System.Drawing.Point(POINT p)
-            {
-                return new System.Drawing.Point(p.X, p.Y);
-            }
-
-            public static implicit operator POINT(System.Drawing.Point p)
-            {
-                return new POINT(p.X, p.Y);
-            }
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
-
-        enum MonitorOptions : uint
-        {
-            MONITOR_DEFAULTTONULL = 0x00000000,
-            MONITOR_DEFAULTTOPRIMARY = 0x00000001,
-            MONITOR_DEFAULTTONEAREST = 0x00000002
         }
 
     }

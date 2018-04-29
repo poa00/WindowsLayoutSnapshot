@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Snapshot.cs" />
+    <Compile Include="Native.cs" />
     <Compile Include="TrayIconForm.cs">
       <SubType>Form</SubType>
     </Compile>
