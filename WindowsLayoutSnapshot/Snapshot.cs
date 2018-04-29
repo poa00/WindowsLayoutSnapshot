@@ -117,18 +117,25 @@ namespace WindowsLayoutSnapshot {
         }
 
         private static Rectangle GetRectInsideNearestMonitor(WinInfo win) {
-            Rectangle rect = win.position;
+            Rectangle real = win.position;
+            Rectangle rect = win.visible;
             Rectangle monitorRect = Screen.GetWorkingArea(rect); // use workspace coordinates
-
-            var y = new Rectangle(
+            Rectangle y = new Rectangle(
                 Math.Max(monitorRect.Left, Math.Min(monitorRect.Right - rect.Width, rect.Left)),
                 Math.Max(monitorRect.Top, Math.Min(monitorRect.Bottom - rect.Height, rect.Top)),
                 Math.Min(monitorRect.Width, rect.Width),
                 Math.Min(monitorRect.Height, rect.Height)
             );
+            if (rect != real) // support different real and visible position
+                y = new Rectangle(
+                    y.Left - rect.Left + real.Left,
+                    y.Top - rect.Top + real.Top,
+                    y.Width - rect.Width + real.Width,
+                    y.Height - rect.Height + real.Height
+                );
 #if DEBUG
-            if (y.Left != rect.Left || y.Top != rect.Top)
-                Debug.WriteLine("Moving " + rect + "→" + y + " in monitor " + monitorRect);
+            if (y != real)
+                Debug.WriteLine("Moving " + real + "→" + y + " in monitor " + monitorRect);
 #endif
             return y;
         }
@@ -162,8 +169,9 @@ namespace WindowsLayoutSnapshot {
             return true;
         }
 
-        private struct WinInfo {
+        private class WinInfo {
             public Rectangle position; // real window border, we use this to move it
+            public Rectangle visible; // visible window borders, we use this to force inside a screen
         }
 
         private static WinInfo GetWindowInfo(IntPtr hwnd) {
@@ -171,7 +179,10 @@ namespace WindowsLayoutSnapshot {
             RECT pos;
             if (!GetWindowRect(hwnd, out pos))
                 throw new Exception("Error getting window rectangle");
-            win.position = pos.ToRectangle();
+            win.position = win.visible = pos.ToRectangle();
+            if (Environment.OSVersion.Version.Major >= 6)
+                if (DwmGetWindowAttribute(hwnd, 9 /*DwmwaExtendedFrameBounds*/, out pos, Marshal.SizeOf(typeof(RECT))) == 0)
+                    win.visible = pos.ToRectangle();
             return win;
         }
 
@@ -265,6 +276,9 @@ namespace WindowsLayoutSnapshot {
         [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+        [DllImport(@"dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute, int cbAttribute);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct MONITORINFO
