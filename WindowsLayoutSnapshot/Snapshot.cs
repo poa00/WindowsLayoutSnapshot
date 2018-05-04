@@ -97,12 +97,12 @@ namespace WindowsLayoutSnapshot {
                 // make sure window will be inside a monitor
                 Rectangle newpos = GetRectInsideNearestMonitor(win);
 
-                if (!Native.SetWindowPos(placement.Key, 0, newpos.Left, newpos.Top, newpos.Width, newpos.Height, 0x0004 /*NOZORDER*/))
+                if (!SetWindowPos(placement.Key, 0, newpos.Left, newpos.Top, newpos.Width, newpos.Height, 0x0004 /*NOZORDER*/))
                     Debug.WriteLine("Can't move window " + placement.Key + ": " + GetLastError());
             }
 
             // now update the z-orders
-            m_windowsBackToTop = m_windowsBackToTop.FindAll(Native.IsWindowVisible);
+            m_windowsBackToTop = m_windowsBackToTop.FindAll(IsWindowVisible);
             IntPtr positionStructure = BeginDeferWindowPos(m_windowsBackToTop.Count);
             for (int i = 0; i < m_windowsBackToTop.Count; i++) {
                 positionStructure = DeferWindowPos(positionStructure, m_windowsBackToTop[i], i == 0 ? IntPtr.Zero : m_windowsBackToTop[i - 1],
@@ -136,13 +136,13 @@ namespace WindowsLayoutSnapshot {
         }
 
         private static bool IsAltTabWindow(IntPtr hwnd) {
-            if (!Native.IsWindowVisible(hwnd))
+            if (!IsWindowVisible(hwnd))
                 return false;
 
             IntPtr extendedStyles = GetWindowLongPtr(hwnd, (-20)); // GWL_EXSTYLE
             if ((extendedStyles.ToInt64() & WS_EX_APPWINDOW) > 0)
                 return true;
-            if ((extendedStyles.ToInt64() & Native.WS_EX_TOOLWINDOW) > 0)
+            if ((extendedStyles.ToInt64() & WS_EX_TOOLWINDOW) > 0)
                 return false;
 
             IntPtr hwndTry = GetAncestor(hwnd, GetAncestor_Flags.GetRootOwner);
