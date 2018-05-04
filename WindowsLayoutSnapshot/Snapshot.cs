@@ -23,9 +23,8 @@ namespace WindowsLayoutSnapshot {
             UserInitiated = userInitiated;
 
             var pixels = new List<long>();
-            foreach (var screen in Screen.AllScreens) {
+            foreach (var screen in Screen.AllScreens)
                 pixels.Add(screen.Bounds.Width * screen.Bounds.Height);
-            }
             MonitorPixelCounts = pixels.ToArray();
             NumMonitors = pixels.Count;
         }
