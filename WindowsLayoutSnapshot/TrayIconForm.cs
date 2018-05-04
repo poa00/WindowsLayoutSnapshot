@@ -5,8 +5,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using static WindowsLayoutSnapshot.Native;
 
 namespace WindowsLayoutSnapshot {
 
@@ -288,13 +288,6 @@ namespace WindowsLayoutSnapshot {
             // Application.Run(Form) changes this form to be visible.  Change it back.
             Visible = false;
         }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
 
     }
 }
