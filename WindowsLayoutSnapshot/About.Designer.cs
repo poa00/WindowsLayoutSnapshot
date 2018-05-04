@@ -56,18 +56,18 @@
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(312, 212);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(339, 212);
             this.tableLayoutPanel.TabIndex = 0;
             // 
             // labelProductName
             // 
             this.labelProductName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelProductName.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelProductName.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelProductName.Location = new System.Drawing.Point(9, 0);
             this.labelProductName.Margin = new System.Windows.Forms.Padding(9, 0, 4, 0);
             this.labelProductName.MaximumSize = new System.Drawing.Size(0, 32);
             this.labelProductName.Name = "labelProductName";
-            this.labelProductName.Size = new System.Drawing.Size(299, 32);
+            this.labelProductName.Size = new System.Drawing.Size(326, 32);
             this.labelProductName.TabIndex = 19;
             this.labelProductName.Text = "Product Name";
             this.labelProductName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -81,7 +81,7 @@
             this.labelVersion.Margin = new System.Windows.Forms.Padding(9, 0, 4, 0);
             this.labelVersion.MaximumSize = new System.Drawing.Size(0, 32);
             this.labelVersion.Name = "labelVersion";
-            this.labelVersion.Size = new System.Drawing.Size(299, 32);
+            this.labelVersion.Size = new System.Drawing.Size(326, 32);
             this.labelVersion.TabIndex = 0;
             this.labelVersion.Text = "Version";
             this.labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -95,7 +95,7 @@
             this.labelCopyright.Margin = new System.Windows.Forms.Padding(9, 0, 4, 0);
             this.labelCopyright.MaximumSize = new System.Drawing.Size(0, 32);
             this.labelCopyright.Name = "labelCopyright";
-            this.labelCopyright.Size = new System.Drawing.Size(299, 32);
+            this.labelCopyright.Size = new System.Drawing.Size(326, 32);
             this.labelCopyright.TabIndex = 21;
             this.labelCopyright.Text = "Copyright";
             this.labelCopyright.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -117,7 +117,7 @@
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.okButton.Location = new System.Drawing.Point(196, 173);
+            this.okButton.Location = new System.Drawing.Point(223, 173);
             this.okButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(112, 34);
@@ -130,7 +130,7 @@
             this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(340, 240);
+            this.ClientSize = new System.Drawing.Size(367, 240);
             this.Controls.Add(this.tableLayoutPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
