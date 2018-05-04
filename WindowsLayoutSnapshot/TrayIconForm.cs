@@ -103,6 +103,7 @@ namespace WindowsLayoutSnapshot {
             var newMenuItems = new List<ToolStripItem>();
 
             newMenuItems.Add(quitToolStripMenuItem);
+            newMenuItems.Add(aboutToolStripMenuItem);
             newMenuItems.Add(snapshotListEndLine);
 
             var maxNumMonitors = 0;
@@ -263,6 +264,10 @@ namespace WindowsLayoutSnapshot {
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e) {
             Application.Exit();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
+            new About().Show();
         }
 
         private void trayIcon_MouseClick(object sender, MouseEventArgs e) {

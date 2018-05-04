@@ -1,4 +1,4 @@
-﻿namespace WindowsLayoutSnapshot {
+namespace WindowsLayoutSnapshot {
     partial class TrayIconForm {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.trayMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.snapshotListEndLine = new System.Windows.Forms.ToolStripSeparator();
             this.justNowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.snapshotListStartLine = new System.Windows.Forms.ToolStripSeparator();
@@ -48,6 +49,7 @@
             // 
             this.trayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.quitToolStripMenuItem,
+            this.aboutToolStripMenuItem,
             this.snapshotListEndLine,
             this.justNowToolStripMenuItem,
             this.snapshotListStartLine,
@@ -62,6 +64,13 @@
             this.quitToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.quitToolStripMenuItem.Text = "Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // snapshotListEndLine
             // 
@@ -116,6 +125,7 @@
         private System.Windows.Forms.ToolStripMenuItem snapshotToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator snapshotListStartLine;
         private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator snapshotListEndLine;
         private System.Windows.Forms.ToolStripMenuItem clearSnapshotsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem justNowToolStripMenuItem;
