@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
-namespace WindowsLayoutSnapshot {
-
+namespace WindowsLayoutSnapshot
+{
     // Open source
     // Imported by: Adam Smith
     // Imported on: 8/9/2012
@@ -12,91 +10,8 @@ namespace WindowsLayoutSnapshot {
     // License: CPOL (liberal)
     // Modifications: cleanup
 
-    public class Window {
-
-        private IntPtr m_hWnd;
-        private string m_Title;
-        private bool m_Visible = true;
-        private string m_Process;
-        private bool m_WasMax = false;
-
-        public Window(string Title, IntPtr hWnd, string Process) {
-            m_Title = Title;
-            m_hWnd = hWnd;
-            m_Process = Process;
-        }
-
-        public IntPtr hWnd {
-            get { return m_hWnd; }
-        }
-
-        public string Title {
-            get { return m_Title; }
-        }
-
-        public string Process {
-            get { return m_Process; }
-        }
-
-        public bool Visible {
-            get { return m_Visible; }
-            set {
-                //show the window
-                if (value) {
-                    if (m_WasMax) {
-                        if (ShowWindowAsync(m_hWnd, SW_SHOWMAXIMIZED))
-                            m_Visible = true;
-                    } else {
-                        if (ShowWindowAsync(m_hWnd, SW_SHOWNORMAL))
-                            m_Visible = true;
-                    }
-                } else {
-                    m_WasMax = IsZoomed(m_hWnd);
-                    if (ShowWindowAsync(m_hWnd, SW_HIDE))
-                        m_Visible = false;
-                }
-            }
-        }
-
-        public void Activate() {
-            if (m_hWnd == GetForegroundWindow()) {
-                return;
-            }
-
-            IntPtr ThreadID1 = GetWindowThreadProcessId(GetForegroundWindow(),
-                                                        IntPtr.Zero);
-            IntPtr ThreadID2 = GetWindowThreadProcessId(m_hWnd, IntPtr.Zero);
-
-            if (ThreadID1 != ThreadID2) {
-                AttachThreadInput(ThreadID1, ThreadID2, 1);
-                SetForegroundWindow(m_hWnd);
-                AttachThreadInput(ThreadID1, ThreadID2, 0);
-            } else {
-                SetForegroundWindow(m_hWnd);
-            }
-
-            if (IsIconic(m_hWnd)) {
-                ShowWindowAsync(m_hWnd, SW_RESTORE);
-            } else {
-                ShowWindowAsync(m_hWnd, SW_SHOWNORMAL);
-            }
-        }
-
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-        [DllImport("user32.dll")]
-        private static extern bool IsIconic(IntPtr hWnd);
-        [DllImport("user32.dll")]
-        private static extern bool IsZoomed(IntPtr hWnd);
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
-        [DllImport("user32.dll")]
-        private static extern IntPtr AttachThreadInput(IntPtr idAttach, IntPtr idAttachTo, int fAttach);
-
+    public class Window
+    {
         private const int SW_HIDE = 0;
         private const int SW_SHOWNORMAL = 1;
         private const int SW_SHOWMINIMIZED = 2;
@@ -104,5 +19,92 @@ namespace WindowsLayoutSnapshot {
         private const int SW_SHOWNOACTIVATE = 4;
         private const int SW_RESTORE = 9;
         private const int SW_SHOWDEFAULT = 10;
+
+        private bool _visible = true;
+        private bool _wasMax;
+
+        public Window(string title, IntPtr hWnd, string process)
+        {
+            this.Title = title;
+            this.HWnd = hWnd;
+            this.Process = process;
+        }
+
+        public IntPtr HWnd { get; }
+
+        public string Title { get; }
+
+        public string Process { get; }
+
+        public bool Visible
+        {
+            get => _visible;
+            set
+            {
+                //show the window
+                if (value)
+                {
+                    if (_wasMax)
+                    {
+                        if (ShowWindowAsync(HWnd, SW_SHOWMAXIMIZED))
+                            _visible = true;
+                    }
+                    else
+                    {
+                        if (ShowWindowAsync(HWnd, SW_SHOWNORMAL))
+                            _visible = true;
+                    }
+                }
+                else
+                {
+                    _wasMax = IsZoomed(HWnd);
+                    if (ShowWindowAsync(HWnd, SW_HIDE))
+                        _visible = false;
+                }
+            }
+        }
+
+        public void Activate()
+        {
+            if (HWnd == GetForegroundWindow()) return;
+
+            var threadId1 = GetWindowThreadProcessId(GetForegroundWindow(),
+                IntPtr.Zero);
+            var threadId2 = GetWindowThreadProcessId(HWnd, IntPtr.Zero);
+
+            if (threadId1 != threadId2)
+            {
+                AttachThreadInput(threadId1, threadId2, 1);
+                SetForegroundWindow(HWnd);
+                AttachThreadInput(threadId1, threadId2, 0);
+            }
+            else
+            {
+                SetForegroundWindow(HWnd);
+            }
+
+            ShowWindowAsync(HWnd, IsIconic(HWnd) ? SW_RESTORE : SW_SHOWNORMAL);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsIconic(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsZoomed(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr AttachThreadInput(IntPtr idAttach, IntPtr idAttachTo, int fAttach);
     }
 }
