@@ -91,7 +91,7 @@ namespace WindowsLayoutSnapshot
                 // This was determined by trying a bunch of stuff
                 // This prevents the tray menu from closing, and makes sure it's still on top
                 SetForegroundWindow(currentForegroundWindow);
-                TrayIconForm.me.Visible = true;
+                TrayIconForm.Cms.Visible = true;
             }
         }
 

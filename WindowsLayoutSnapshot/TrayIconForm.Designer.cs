@@ -43,7 +43,7 @@ namespace WindowsLayoutSnapshot {
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "Window Layout Backup";
             this.trayIcon.Visible = true;
-            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.trayIcon_MouseClick);
+            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TrayIcon_MouseClick);
             // 
             // trayMenu
             // 
@@ -63,14 +63,14 @@ namespace WindowsLayoutSnapshot {
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
             this.quitToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.quitToolStripMenuItem.Text = "Quit";
-            this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
+            this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
             // snapshotListEndLine
             // 
@@ -82,8 +82,8 @@ namespace WindowsLayoutSnapshot {
             this.justNowToolStripMenuItem.Name = "justNowToolStripMenuItem";
             this.justNowToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.justNowToolStripMenuItem.Text = "(Just now)";
-            this.justNowToolStripMenuItem.Click += new System.EventHandler(this.justNowToolStripMenuItem_Click);
-            this.justNowToolStripMenuItem.MouseEnter += new System.EventHandler(this.justNowToolStripMenuItem_MouseEnter);
+            this.justNowToolStripMenuItem.Click += new System.EventHandler(this.JustNowToolStripMenuItem_Click);
+            this.justNowToolStripMenuItem.MouseEnter += new System.EventHandler(this.JustNowToolStripMenuItem_MouseEnter);
             // 
             // snapshotListStartLine
             // 
@@ -95,14 +95,14 @@ namespace WindowsLayoutSnapshot {
             this.clearSnapshotsToolStripMenuItem.Name = "clearSnapshotsToolStripMenuItem";
             this.clearSnapshotsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.clearSnapshotsToolStripMenuItem.Text = "Clear Snapshots";
-            this.clearSnapshotsToolStripMenuItem.Click += new System.EventHandler(this.clearSnapshotsToolStripMenuItem_Click);
+            this.clearSnapshotsToolStripMenuItem.Click += new System.EventHandler(this.ClearSnapshotsToolStripMenuItem_Click);
             // 
             // snapshotToolStripMenuItem
             // 
             this.snapshotToolStripMenuItem.Name = "snapshotToolStripMenuItem";
             this.snapshotToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.snapshotToolStripMenuItem.Text = "Take Snapshot";
-            this.snapshotToolStripMenuItem.Click += new System.EventHandler(this.snapshotToolStripMenuItem_Click);
+            this.snapshotToolStripMenuItem.Click += new System.EventHandler(this.SnapshotToolStripMenuItem_Click);
             // 
             // TrayIconForm
             // 
