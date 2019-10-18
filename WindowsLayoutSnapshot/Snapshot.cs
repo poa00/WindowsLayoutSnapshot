@@ -126,8 +126,8 @@ namespace WindowsLayoutSnapshot
 
         private static Rectangle GetRectInsideNearestMonitor(WinInfo win)
         {
-            var real = win.position;
-            var rect = win.visible;
+            var real = win.Position;
+            var rect = win.Visible;
             var monitorRect = Screen.GetWorkingArea(rect); // use workspace coordinates
             var y = new Rectangle(
                 Math.Max(monitorRect.Left, Math.Min(monitorRect.Right - rect.Width, rect.Left)),
@@ -170,10 +170,7 @@ namespace WindowsLayoutSnapshot
                     break;
             }
 
-            if (hwndWalk != hwnd)
-                return false;
-
-            return true;
+            return hwndWalk == hwnd;
         }
 
         private static WinInfo GetWindowInfo(IntPtr hwnd)
@@ -182,18 +179,18 @@ namespace WindowsLayoutSnapshot
             RECT pos;
             if (!GetWindowRect(hwnd, out pos))
                 throw new Exception("Error getting window rectangle");
-            win.position = win.visible = pos.ToRectangle();
+            win.Position = win.Visible = pos.ToRectangle();
             if (Environment.OSVersion.Version.Major >= 6)
                 if (DwmGetWindowAttribute(hwnd, 9 /*DwmwaExtendedFrameBounds*/, out pos,
                         Marshal.SizeOf(typeof(RECT))) == 0)
-                    win.visible = pos.ToRectangle();
+                    win.Visible = pos.ToRectangle();
             return win;
         }
 
         private class WinInfo
         {
-            public Rectangle position; // real window border, we use this to move it
-            public Rectangle visible; // visible window borders, we use this to force inside a screen
+            public Rectangle Position; // real window border, we use this to move it
+            public Rectangle Visible; // visible window borders, we use this to force inside a screen
         }
     }
 }

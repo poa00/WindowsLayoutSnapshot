@@ -102,7 +102,7 @@ namespace WindowsLayoutSnapshot
         private static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+        private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
 
         [DllImport("user32.dll")]
         private static extern IntPtr AttachThreadInput(IntPtr idAttach, IntPtr idAttachTo, int fAttach);
