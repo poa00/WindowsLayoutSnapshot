@@ -21,7 +21,7 @@ The app takes a "snapshot" of your windows layouts every thirty minutes.  You ca
 * Snapshots are not stored across app instances (or, thus, restarts).
 
 ## Screenshot
-![](https://raw.github.com/adamsmith/WindowsLayoutSnapshot/master/screenshot.png)
+![](./screenshot.png)
 
 ## License
 See `LICENSE` file.
