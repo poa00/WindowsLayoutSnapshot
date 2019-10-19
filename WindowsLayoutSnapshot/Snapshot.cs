@@ -37,6 +37,11 @@ namespace WindowsLayoutSnapshot
 
         internal TimeSpan Age => DateTime.UtcNow.Subtract(TimeTaken);
 
+        /// <summary>
+        ///     Create new snapshot.
+        /// </summary>
+        /// <param name="userInitiated">True if invoked by user, false if automated.</param>
+        /// <returns>The new snapshot.</returns>
         internal static Snapshot TakeSnapshot(bool userInitiated)
         {
             return new Snapshot(userInitiated);
@@ -60,7 +65,7 @@ namespace WindowsLayoutSnapshot
             int textLength = 256;
             System.Text.StringBuilder outText = new System.Text.StringBuilder(textLength + 1);
             int a = GetWindowText(hwnd, outText, outText.Capacity);
-            Debug.WriteLine(hwnd + " " + win.position + " " + outText);
+            Debug.WriteLine(hwnd + " " + win.Position + " " + outText);
 #endif
 
             return true;
@@ -93,6 +98,11 @@ namespace WindowsLayoutSnapshot
                 SetForegroundWindow(currentForegroundWindow);
                 TrayIconForm.Cms.Visible = true;
             }
+        }
+
+        public void Restore()
+        {
+            Restore(this, EventArgs.Empty);
         }
 
         internal void Restore(object sender, EventArgs e)

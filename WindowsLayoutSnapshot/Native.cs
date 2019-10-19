@@ -10,6 +10,13 @@ namespace WindowsLayoutSnapshot
         internal const long WS_EX_TOOLWINDOW = 0x00000080L;
         internal const long WS_EX_APPWINDOW = 0x00040000L;
 
+        public const int DEVICE_NOTIFY_WINDOW_HANDLE = 0x00000000;
+        public const int WM_POWERBROADCAST = 0x0218;
+        public const int PBT_POWERSETTINGCHANGE = 0x8013;
+
+        public static Guid GUID_CONSOLE_DISPLAY_STATE =
+            new Guid("6FE69556-704A-47A0-8F24-C28D936FDA47");
+
         [DllImport("user32.dll")]
         internal static extern IntPtr BeginDeferWindowPos(int nNumWindows);
 
@@ -77,6 +84,16 @@ namespace WindowsLayoutSnapshot
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
+
+        [DllImport(@"User32", SetLastError = true, EntryPoint = "RegisterPowerSettingNotification",
+            CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr RegisterPowerSettingNotification(IntPtr hRecipient, ref Guid PowerSettingGuid,
+            int Flags);
+
+
+        [DllImport(@"User32", SetLastError = true, EntryPoint = "UnregisterPowerSettingNotification",
+            CallingConvention = CallingConvention.StdCall)]
+        public static extern bool UnregisterPowerSettingNotification(IntPtr handle);
 
         [Flags]
         internal enum DeferWindowPosCommands : uint
@@ -160,6 +177,14 @@ namespace WindowsLayoutSnapshot
             MONITOR_DEFAULTTONULL = 0x00000000,
             MONITOR_DEFAULTTOPRIMARY = 0x00000001,
             MONITOR_DEFAULTTONEAREST = 0x00000002
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct POWERBROADCAST_SETTING
+        {
+            public Guid PowerSetting;
+            public uint DataLength;
+            public byte Data;
         }
     }
 }

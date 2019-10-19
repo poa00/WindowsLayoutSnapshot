@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using WindowsLayoutSnapshot.Properties;
 using static WindowsLayoutSnapshot.Native;
+using Timer = System.Windows.Forms.Timer;
 
 namespace WindowsLayoutSnapshot
 {
     public partial class TrayIconForm : Form
     {
+        private readonly IntPtr _notificationHandle;
         private readonly List<Snapshot> _snapshots = new List<Snapshot>();
 
         private readonly Timer _snapshotTimer = new Timer();
+        private bool _firstStart = true;
         private Snapshot _menuShownSnapshot;
         private Padding? _originalTrayMenuArrowPadding;
         private Padding? _originalTrayMenuTextPadding;
@@ -24,16 +30,54 @@ namespace WindowsLayoutSnapshot
             InitializeComponent();
             Visible = false;
 
-            _snapshotTimer.Interval = (int) TimeSpan.FromMinutes(20).TotalMilliseconds;
+            _snapshotTimer.Interval = (int)TimeSpan.FromMinutes(20).TotalMilliseconds;
             _snapshotTimer.Tick += SnapshotTimer_Tick;
-            _snapshotTimer.Enabled = true;
 
             Cms = trayMenu;
 
+            _notificationHandle =
+                RegisterPowerSettingNotification(
+                    Handle,
+                    ref GUID_CONSOLE_DISPLAY_STATE,
+                    DEVICE_NOTIFY_WINDOW_HANDLE
+                );
+
+            // Take first startup snapshot
             TakeSnapshot(false);
         }
 
         internal static ContextMenuStrip Cms { get; set; }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_POWERBROADCAST && m.WParam.ToInt32() == PBT_POWERSETTINGCHANGE)
+            {
+                var s = (POWERBROADCAST_SETTING)Marshal.PtrToStructure(m.LParam, typeof(POWERBROADCAST_SETTING));
+                if (s.PowerSetting == GUID_CONSOLE_DISPLAY_STATE)
+                    switch (s.Data)
+                    {
+                        case 0x00: // The display is off
+                            _snapshotTimer.Enabled = false;
+                            TakeSnapshot(false);
+                            break;
+                        case 0x01: // The display is on
+                            _snapshotTimer.Enabled = true;
+
+                            if (!_firstStart)
+                            {
+                                // TODO: find better way, desktop isn't drawn yet when this event is received
+                                Thread.Sleep(5000);
+                                _snapshots.Last().Restore();
+                            }
+
+                            if (_firstStart) _firstStart = false;
+
+                            break;
+                    }
+            }
+
+            base.WndProc(ref m);
+        }
 
         private void SnapshotTimer_Tick(object sender, EventArgs e)
         {
@@ -92,7 +136,7 @@ namespace WindowsLayoutSnapshot
 
             foreach (var snapshot in snapshotsOldestFirst)
             {
-                var menuItem = new RightImageToolStripMenuItem(snapshot.GetDisplayString()) {Tag = snapshot};
+                var menuItem = new RightImageToolStripMenuItem(snapshot.GetDisplayString()) { Tag = snapshot };
                 menuItem.Click += snapshot.Restore;
                 menuItem.MouseEnter += SnapshotMousedOver;
                 if (snapshot.UserInitiated) menuItem.Font = new Font(menuItem.Font, FontStyle.Bold);
@@ -101,7 +145,7 @@ namespace WindowsLayoutSnapshot
                 var monitorSizes = new List<float>();
                 if (showMonitorIcons)
                     foreach (var monitorPixels in snapshot.MonitorPixelCounts)
-                        monitorSizes.Add((float) Math.Sqrt((float) monitorPixels / maxNumMonitorPixels));
+                        monitorSizes.Add((float)Math.Sqrt((float)monitorPixels / maxNumMonitorPixels));
                 menuItem.MonitorSizes = monitorSizes.ToArray();
 
                 newMenuItems.Add(menuItem);
@@ -118,7 +162,7 @@ namespace WindowsLayoutSnapshot
                 var textPaddingField =
                     typeof(ToolStripDropDownMenu).GetField("TextPadding", BindingFlags.NonPublic | BindingFlags.Static);
                 if (!_originalTrayMenuTextPadding.HasValue)
-                    _originalTrayMenuTextPadding = (Padding) textPaddingField.GetValue(trayMenu);
+                    _originalTrayMenuTextPadding = (Padding)textPaddingField.GetValue(trayMenu);
                 textPaddingField.SetValue(trayMenu, new Padding(_originalTrayMenuTextPadding.Value.Left,
                     _originalTrayMenuTextPadding.Value.Top,
                     _originalTrayMenuTextPadding.Value.Right - (showMonitorIcons ? 34 : 0),
@@ -138,7 +182,7 @@ namespace WindowsLayoutSnapshot
                     typeof(ToolStripDropDownMenu).GetField("ArrowPadding",
                         BindingFlags.NonPublic | BindingFlags.Static);
                 if (!_originalTrayMenuArrowPadding.HasValue)
-                    _originalTrayMenuArrowPadding = (Padding) arrowPaddingField.GetValue(trayMenu);
+                    _originalTrayMenuArrowPadding = (Padding)arrowPaddingField.GetValue(trayMenu);
                 arrowPaddingField.SetValue(trayMenu, new Padding(_originalTrayMenuArrowPadding.Value.Left,
                     _originalTrayMenuArrowPadding.Value.Top,
                     _originalTrayMenuArrowPadding.Value.Right + (showMonitorIcons ? 50 + 22 * maxNumMonitors : 0),
@@ -226,7 +270,7 @@ namespace WindowsLayoutSnapshot
 
             try
             {
-                ((Snapshot) ((ToolStripMenuItem) sender).Tag).Restore(sender, e);
+                ((Snapshot)((ToolStripMenuItem)sender).Tag).Restore(sender, e);
             }
             finally
             {
@@ -293,21 +337,21 @@ namespace WindowsLayoutSnapshot
                 base.OnPaint(e);
 
                 var icon = Resources.monitor;
-                var maxIconSizeScaling = (float) (e.ClipRectangle.Height - 8) / icon.Height;
-                var maxIconSize = new Size((int) Math.Floor(icon.Width * maxIconSizeScaling),
-                    (int) Math.Floor(icon.Height * maxIconSizeScaling));
-                var maxIconY = (int) Math.Round((e.ClipRectangle.Height - maxIconSize.Height) / 2f);
+                var maxIconSizeScaling = (float)(e.ClipRectangle.Height - 8) / icon.Height;
+                var maxIconSize = new Size((int)Math.Floor(icon.Width * maxIconSizeScaling),
+                    (int)Math.Floor(icon.Height * maxIconSizeScaling));
+                var maxIconY = (int)Math.Round((e.ClipRectangle.Height - maxIconSize.Height) / 2f);
 
                 var nextRight = e.ClipRectangle.Width - 5;
                 for (var i = 0; i < MonitorSizes.Length; i++)
                 {
-                    var thisIconSize = new Size((int) Math.Ceiling(maxIconSize.Width * MonitorSizes[i]),
-                        (int) Math.Ceiling(maxIconSize.Height * MonitorSizes[i]));
+                    var thisIconSize = new Size((int)Math.Ceiling(maxIconSize.Width * MonitorSizes[i]),
+                        (int)Math.Ceiling(maxIconSize.Height * MonitorSizes[i]));
                     var thisIconLocation = new Point(nextRight - thisIconSize.Width,
                         maxIconY + (maxIconSize.Height - thisIconSize.Height));
 
                     // Draw with transparency
-                    var cm = new ColorMatrix {Matrix33 = 0.7f};
+                    var cm = new ColorMatrix { Matrix33 = 0.7f };
                     // opacity
                     using (var ia = new ImageAttributes())
                     {
