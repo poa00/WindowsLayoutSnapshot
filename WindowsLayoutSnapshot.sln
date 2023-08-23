@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsLayoutSnapshot", "WindowsLayoutSnapshot.csproj", "{90099B04-158B-41D9-A754-AB61386853AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsLayoutSnapshot", "src\WindowsLayoutSnapshot.csproj", "{90099B04-158B-41D9-A754-AB61386853AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
