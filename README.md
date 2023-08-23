@@ -31,3 +31,7 @@ The app takes a "snapshot" of your windows layouts every thirty minutes.  You ca
 ## License
 
 See `LICENSE` file.
+
+## Credits
+
+Originally created by [Lapo Luchini](https://github.com/lapo-luchini), modernized and maintained by me 😇
