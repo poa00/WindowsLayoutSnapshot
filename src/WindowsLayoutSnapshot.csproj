@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <ProjectGuid>{90099B04-158B-41D9-A754-AB61386853AE}</ProjectGuid>
+    <UseWindowsForms>true</UseWindowsForms>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net45</TargetFramework>
     <AssemblyTitle>WindowsLayoutSnapshot</AssemblyTitle>
@@ -10,8 +8,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Windows app to remember + restore window positions</Description>
     <Copyright>MIT ⓪ 2012-2019</Copyright>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
+    <Version>1.4.1.0</Version>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
