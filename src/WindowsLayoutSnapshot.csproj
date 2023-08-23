@@ -15,9 +15,6 @@
     <ApplicationIcon>monitor-window-3d-shadow.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="About.cs">
       <SubType>Form</SubType>
     </Compile>
