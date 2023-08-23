@@ -1,8 +1,8 @@
 # WindowsLayoutSnapshot
 
-[![.NET](https://github.com/nefarius/WindowsLayoutSnapshot/actions/workflows/dotnet.yml/badge.svg)](https://github.com/nefarius/WindowsLayoutSnapshot/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/nefarius/WindowsLayoutSnapshot/actions/workflows/dotnet.yml/badge.svg)](https://github.com/nefarius/WindowsLayoutSnapshot/actions/workflows/dotnet.yml) ![GitHub all releases](https://img.shields.io/github/downloads/nefarius/WindowsLayoutSnapshot/total)
 
-Ever switched monitor configurations on your laptop and all of your windows are squished down in size and in the wrong position? Ever unplugged from docking station with multiple monitors to go to a meeting? Ever wanted to minimize all windows but save their layouts and min-max'ed states for later? 
+Ever switched monitor configurations on your laptop and all of your windows are squished down in size and in the wrong position? Ever unplugged from docking station with multiple monitors to go to a meeting? Ever wanted to minimize all windows but save their layouts and min-max'ed states for later?
 
 WindowsLayoutSnapshot is a windows app to remember and restore window sizes and positions.
 
