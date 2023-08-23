@@ -7,16 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsLayoutSnapshot", "sr
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.Build.0 = Debug|Any CPU
-		{90099B04-158B-41D9-A754-AB61386853AE}.Release|x86.ActiveCfg = Release|x86
-		{90099B04-158B-41D9-A754-AB61386853AE}.Release|x86.Build.0 = Release|x86
+		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90099B04-158B-41D9-A754-AB61386853AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90099B04-158B-41D9-A754-AB61386853AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {323ACEA3-F6F2-4AA9-9CE4-C1722CEA2201}
 	EndGlobalSection
 EndGlobal
