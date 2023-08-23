@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsLayoutSnapshot", "src\WindowsLayoutSnapshot.csproj", "{90099B04-158B-41D9-A754-AB61386853AE}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsLayoutSnapshot", "src\WindowsLayoutSnapshot.csproj", "{90099B04-158B-41D9-A754-AB61386853AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,8 +11,8 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.ActiveCfg = Debug|x86
-		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.Build.0 = Debug|x86
+		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90099B04-158B-41D9-A754-AB61386853AE}.Debug|x86.Build.0 = Debug|Any CPU
 		{90099B04-158B-41D9-A754-AB61386853AE}.Release|x86.ActiveCfg = Release|x86
 		{90099B04-158B-41D9-A754-AB61386853AE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
