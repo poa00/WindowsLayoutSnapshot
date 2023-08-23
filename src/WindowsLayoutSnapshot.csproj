@@ -2,7 +2,7 @@
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyTitle>WindowsLayoutSnapshot</AssemblyTitle>
     <Product>WindowsLayoutSnapshot</Product>
     <NeutralLanguage>en</NeutralLanguage>
@@ -10,10 +10,15 @@
     <Copyright>MIT ⓪ 2012-2019 Lapo Luchini, 2019-2023 Benjamin Höglinger-Stelzer</Copyright>
     <Version>1.4.1.0</Version>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>monitor-window-3d-shadow.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="About.cs">
       <SubType>Form</SubType>
